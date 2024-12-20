@@ -1,0 +1,27 @@
+name: artifact
+on: push
+
+jobs:
+  upload-artifact:
+    runs-on: ubuntu-latest
+    steps:
+      - name: echo
+        run: echo hello-world > hello.txt
+      - name: upload artifact
+        uses: actions/upload-artifact@v3 # github에서 제공하는 임시 스토리지공간에 업로드, 다른 job에서 다룬로드 가능
+        with:
+          name: artifact-test # 임시 스토리지공간의 이름
+          paths: ./hello.txt # 업로드할 파일
+          retention-days: 90 # 보관기간 default 90일
+
+  download-artifact:
+    runs-on: ubuntu-latest
+    needs: [upload-artifact]
+    steps:
+      - name: download artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: artifact-test # 업로드했던 이름에서 다운로드해야한다.
+          path: ./ # 다운로드할 경로
+      - name: check
+        run: cat hello.txt
