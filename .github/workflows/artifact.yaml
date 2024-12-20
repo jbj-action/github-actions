@@ -11,7 +11,7 @@ jobs:
         uses: actions/upload-artifact@v3 # github에서 제공하는 임시 스토리지공간에 업로드, 다른 job에서 다룬로드 가능
         with:
           name: artifact-test # 임시 스토리지공간의 이름
-          paths: ./hello.txt # 업로드할 파일
+          path: ./hello.txt # 업로드할 파일
           retention-days: 90 # 보관기간 default 90일
 
   download-artifact:
