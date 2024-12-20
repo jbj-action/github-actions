@@ -1,0 +1,19 @@
+name: timeout
+on: push
+
+jobs:
+  timeout:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2 # 이 job은 2분안에 끝내야한다.
+    steps:
+      - name: loop
+        run: |
+          count=0
+          while true; do
+            echo "seconds: $count"
+            count=$((count+1))
+            sleep 1
+          done
+        timeout-miniutes: 1 # 이 step은 1분안에 끝내야한다.
+      - name: echo
+        run: echo hello

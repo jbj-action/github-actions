@@ -1,0 +1,42 @@
+name: cache
+on:
+  push:
+    paths:
+      - "my-app/**"
+
+  #   paths:
+  # - 'my-app/*'    # my-app 디렉토리의 직계 파일만 매칭
+  #                 # my-app/file.txt (O)
+  #                 # my-app/dir/file.txt (X)
+
+  # - 'my-app/**'   # my-app 디렉토리의 모든 하위 경로 매칭
+  #                 # my-app/file.txt (O)
+  #                 # my-app/dir/file.txt (O)
+  #                 # my-app/dir/subdir/file.txt (O)
+
+jobs:
+  cache:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4 # 소스 코드를 runner에 가져오기 위한 필수 단계
+      - name: setup-node
+        uses: actions/setup-node@v3 # Node.js 환경 설정, with로 18 버전임을 action한테 전달
+        with: # with는 GitHub Actions에서 액션(action)에 파라미터를 전달할 때 사용하는 키워드
+          node-version: 18
+      - name: Cache Node.js modules # npm 패키지 캐싱 설정
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm # ~/.npm: npm 캐시 저장 위치
+          key: ${{ runner.os}}-node-${{ hashFiles('**/package-lock.json')}} # key: 캐시 식별자 생성 (OS + package-lock.json의 해시 기반)
+          restore-keys:
+            | # restore-keys: 만들었던 키 중에 정확한 캐시가 없을 때 가장 가까운 캐시를 사용하기 위함
+            ${{ runner.os}}-node-
+      - name: Install dependencies
+        run: |
+          cd my-app
+          npm ci                     # npm ci: package-lock.json을 무존건 사용해야하며 정확한 버전의 의존성 설치
+      - name: npm build
+        run: |
+          cd my-app
+          npm run build
