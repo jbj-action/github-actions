@@ -9,3 +9,7 @@ jobs:
         run:
           echo '${{ toJSON(github)}}' # github context 로그 확인, 각각의 객체가 javascript객체라서 출력을 하려면 문자열로 반환해아함
           # toJSON함수는 오브젝트 객체를 json문자열로 변환할 수 있다.
+      - name: check github context
+        run: |
+          echo ${{ github.repository}}
+          echo ${{ github.event_name}}
