@@ -1,0 +1,23 @@
+name: output
+on: push
+
+jobs:
+  create-output:
+    runs-on: ubuntu-latest
+    outputs: # job level output
+      test: ${{ steps.check-output.outputs.test}} # steps의 test key를 밖으로 내보냄 (값인 hello)
+    steps:
+      - name: echo output
+        id: check-output # 하나의 job안에서는 증복되면 안된다.
+        run: | # step level output
+          echo "test=hello" >> "$GITHUB_OUTPUT"        # output 저장할때는 GITHUB_OUTPUT에 저장한다.
+      - name: check output
+        run: |
+          echo ${{ steps.check-output.outputs.test}}   # steps.[id의 value].outputs.[key]
+  get-output:
+    needs: [create-output]
+    runs-on: ubuntu-latest
+    steps:
+      - name: get output
+        run: |
+          echo ${{ needs.create-output.outputs.test}}   # needs.[job-name].outputs.[key]
