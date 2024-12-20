@@ -1,5 +1,5 @@
 nmae: context
-on: workkflow_dispatch
+on: workflow_dispatch
 
 jobs:
   context:
