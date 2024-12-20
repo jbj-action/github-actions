@@ -3,14 +3,14 @@ on: issue_comment
 
 jobs:
   pr-commnet:
-    if: ${{ github.event.issue.pull_request }}
+    if: ${{ github.event.issue.pull_request }} # pr에 commnet를 달때 트리거 발생
     runs-on: ubuntu-latest
     steps:
       - name: pr comment
         run: echo ${{ github.event.issue.pull_request }}
 
   issue-commnet:
-    if: ${{ !github.event.issue.pull_request }}
+    if: ${{ !github.event.issue.pull_request }} # pr이외에는 issue뿐이라 트리거 발생
     runs-on: ubuntu-latest
     steps:
       - name: issue comment
