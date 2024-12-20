@@ -1,0 +1,11 @@
+name: branch-filter
+on:
+  push:
+    branches: ["dev"] # dev branch에 push할때만 트리거 실행
+
+jobs:
+  branch-filter:
+    runs-on: ubuntu-latest
+    steps:
+      - name: echo
+        run: echo hello
