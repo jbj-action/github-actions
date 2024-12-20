@@ -2,12 +2,12 @@ name: workflow-dispatch
 on:
   workflow_dispatch:
     inputs:
-      name:
-        description: "set name"
+      name1: # 어떤 이름이든 사용가능
+        description: "set name" # 이름
         required: true
         default: "github-actions"
         type: string
-      environment:
+      environment2:
         description: "set env"
         required: true
         default: "dev"
@@ -28,5 +28,5 @@ jobs:
           echo github action
       - name: echo inputs
         run: |
-          echo ${{ inputs.name}}
+          echo ${{ inputs.name1}}
           echo ${{ inputs.environment}}
