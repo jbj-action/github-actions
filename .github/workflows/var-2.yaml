@@ -6,8 +6,8 @@ jobs:
   environment: test
     runs-on: ubuntu-latest
     steps:
-      - name: get var
+      - name: get var1
         run: echo ${{vars.level}}
     steps:
-      - name: get var
+      - name: get var2
         run: echo ${{vars.level1}}
