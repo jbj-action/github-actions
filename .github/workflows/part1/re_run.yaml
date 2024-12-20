@@ -1,0 +1,11 @@
+name: re-run
+on: push
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4 # push한 branch의 git push된 파일들을 clone으로 가져온다.
+      - name: cat readme
+        run: cat README.md
