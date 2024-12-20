@@ -8,6 +8,5 @@ jobs:
     steps:
       - name: get var1
         run: echo ${{vars.level}}
-    steps:
       - name: get var2
         run: echo ${{vars.level1}}
