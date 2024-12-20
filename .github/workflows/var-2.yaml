@@ -3,7 +3,7 @@ on: push
 
 jobs:
   get-var:
-  environment: test
+    environment: test
     runs-on: ubuntu-latest
     steps:
       - name: get var1
