@@ -1,0 +1,22 @@
+name: if-2
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  job1:
+    runs-on: ubuntu-latest
+    steps:
+    - name: exit 1   # 강제 종료
+      run: exit 1
+    - name: echo   # exit1 step이 강제종료되서 echo step은 skip된다.
+      if: always()  # echo step은 강제실행한다.
+      run: echo hello
+  
+  job2:
+    needs: [job1]   # job1이 실패해서 job2는 실행못한다.
+    runs-on: ubuntu-latest
+    if: always()  # job1이 실패하면 job2는 실행못하지만 if: always()를 넣으면 강제로 실행
+    steps:
+    - name: echo
+      run: echo hello
