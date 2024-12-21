@@ -13,10 +13,10 @@ jobs:
       run: echo "test"
 
     - name: endswith
-      if: endWith('github actions', 'ions')
+      if: endsWith('github actions', 'ions')
       run: echo "ions"
     - name: endswith
-      if: endWith('github actions', 'test')
+      if: endsWith('github actions', 'test')
       run: echo "test"
 
     - name: contains
