@@ -1,0 +1,62 @@
+name: issue-notify
+
+on:
+  issues:
+    types: [opened]
+# 새로운 이슈가 생성될 때만 워크플로우가 실행되도록 트리거 설정
+
+jobs:
+  get-keywords:
+    runs-on: ubuntu-latest
+    outputs:
+      level: ${{steps.get-keyword.outputs.level}}
+      # 이 작업의 출력값을 'level'이라는 이름으로 저장
+      # get-keyword 스텝에서 설정한 output값을 다른 job에서도 사용할 수 있게 함
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+        # 저장소의 코드를 가져옴 (소스파일에 있는 keyword-list.txt 파일을 읽기 위해 필요 )
+      - name: get keyword
+        id: get-keyword
+        # 이 스텝을 나중에 참조하기 위한 ID 설정
+        run: |
+          echo level=Undefined >> $GITHUB_OUTPUT                        # GITHUB_OUTPUT은 github에서 제공하는 원래 있는 환경변수 
+
+          keywords=$(cat keyword-list.txt)                              # keyword-list.txt 파일의 내용을 읽어서 keywords 변수에 저장
+          for keyword in $keywords; do                                  # keywords 목록을 순회하면서
+            if [["${{ github.event.issue.title}}" =~ $keyword""]]; then # 이슈 제목에 현재 키워드가 포함되어 있는지 확인
+                                                                        # 문자열 =~ 패턴 : 왼쪽의 문자열이 오른쪽의 패턴과 매치되는지 검사합니다.
+              echo level=$keyword >> $GITHUB_OUTPUT                     # 키워드가 발견되면 해당 키워드를 level 출력값으로 설정
+            fi
+          done
+      - name: get output
+        run: |
+          echo ${{steps.get-keyword.outputs.level}}                     # get-keyword에서 $GITHUB_OUTPUT를 설정해야 outputs를 사용할 수 있다.
+
+  slack:
+    needs: [get-keywords] # get-keywords가 끝나면 실행
+    if: needs.get-keyword.outputs.level !='Undefined' #
+    runs-on: ubuntu-latest
+    environment: ${{needs.get-keyword.outputs.level}}
+    steps:
+      - name: Send custom event details to a Slack workflow
+        uses: slackapi/slack-github-action@v2.0.0
+        with:
+          webhook: ${{ secrets.SLACK_WEBHOOK_URL }} #미리 지정한 환경에따라 전달할 slack url이 달라진다.
+          webhook-type: webhook-trigger
+          payload: |
+            {
+              "attachments": [
+                {
+                  "pretext": "issue alert message",
+                  "color": "28a745",
+                  "fields": [
+                    {
+                      "title": "Level : ${{needs.get-keyword.outputs.level}}",
+                      "short": true,
+                      "value": "issue url : ${{ github.event.issue.html_url}}" # issue의 주소 전달
+                    }
+                  ]
+                }
+              ]
+            }
