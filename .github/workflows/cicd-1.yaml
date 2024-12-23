@@ -66,54 +66,59 @@ jobs:
           tags: | # 이미지 태그 목록
             ${{ vars.registry }}/myapp:latest
 
-  # deploy:
-  #   runs-on: ubuntu-latest
-  #   needs: [ image-build ]
-  #   permissions:
-  #     id-token: write
-  #     contents: read
-  #   steps:
-  #   - name: checkout the code
-  #     uses: actions/checkout@v4
-  #   - name: Configure AWS Credentials
-  #     id: credentials
-  #     uses: aws-actions/configure-aws-credentials@v4
-  #     with:
-  #       aws-region: ${{ vars.AWS_REGION }}
-  #       role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
-  #   - name: setup kubectl
-  #     uses: azure/setup-kubectl@v3
-  #     with:
-  #       version: latest
-  #   - name: setup helm
-  #     uses: azure/setup-helm@v3
-  #     with:
-  #       version: v3.11.1
-  #   - name: access kubernetes
-  #     run: |
-  #       aws eks update-kubeconfig --name ${{ vars.CLUSTER_NAME }}
-  #   - name: deploy
-  #     id: status
-  #     run: |
-  #       helm upgrade --install my-app kubernetes/my-app --create-namespace --namespace my-app-${{ vars.SUFFIX }} \
-  #       --set image.tag=${{ github.sha }} \
-  #       --set image.repository=${{ secrets.REGISTRY }}/${{ vars.REPOSITORY }}
-  #   - name: notify
-  #     if: always()
-  #     uses: slackapi/slack-github-action@v2.0.0
-  #     with:
-  #       webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
-  #       webhook-type: webhook-trigger
-  #       payload: |
-  #         {
-  #           "text": "message",
-  #           "blocks": [
-  #             {
-  #               "type": "section",
-  #               "text": {
-  #                 "type": "mrkdwn",
-  #                 "text": "Environment : dev, Deploy Result : ${{ steps.status.outcome }}, Repository : ${{ github.repository }}."
-  #               }
-  #             }
-  #           ]
-  #         }
+deploy:
+  runs-on: self-hosted
+  needs: [image-build]
+  steps:
+    - name: checkout the code
+      uses: actions/checkout@v4
+
+    # kubectl 설치
+    - name: setup kubectl
+      uses: azure/setup-kubectl@v3
+      with:
+        version: latest
+
+    # helm 설치
+    - name: setup helm
+      uses: azure/setup-helm@v3
+      with:
+        version: v3.11.1
+
+    # kubeconfig 설정 (GitHub Secrets에 kubeconfig 내용 저장 필요)
+    - name: Setup kubeconfig
+      run: |
+        mkdir -p $HOME/.kube
+        echo "${{ secrets.KUBE_CONFIG }}" > $HOME/.kube/config
+        chmod 600 $HOME/.kube/config
+
+    # 배포
+    - name: deploy
+      id: status
+      run: |
+        helm upgrade --install my-app kubernetes/my-app \
+        --create-namespace \
+        --namespace my-app-${{ vars.SUFFIX }} \
+        --set image.tag=${{ github.sha }} \
+        --set image.repository=192.168.70.198:5000/${{ vars.REPOSITORY }}
+
+    # Slack 알림
+    - name: notify
+      if: always()
+      uses: slackapi/slack-github-action@v2.0.0
+      with:
+        webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
+        webhook-type: webhook-trigger
+        payload: |
+          {
+            "text": "message",
+            "blocks": [
+              {
+                "type": "section",
+                "text": {
+                  "type": "mrkdwn",
+                  "text": "Environment : dev, Deploy Result : ${{ steps.status.outcome }}, Repository : ${{ github.repository }}."
+                }
+              }
+            ]
+          }
