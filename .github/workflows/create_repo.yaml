@@ -29,10 +29,12 @@ jobs:
         id: create-repo1 # 성공/실패 유무를 내보내기 위해 고유 ID를 부여
         run: |
           gh repo create jbj-action2/${{inputs.prefix}}-${{inputs.name}} --public --add-readme   # input값으로 repo 생성
-      - name: slack
+      - name: Send custom event details to a Slack workflow
         if: always() # 위 2번째 step이 성공 또는 실패를 무조건 보내기
-        uses: slackapi/slack-github-action@v1.24.0
+        uses: slackapi/slack-github-action@v2.0.0
         with:
+          webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
+          webhook-type: webhook-trigger
           payload: |
             {
               "attachments": [
@@ -49,6 +51,3 @@ jobs:
                 }
               ]
             }
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-          SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
