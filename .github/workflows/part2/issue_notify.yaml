@@ -38,7 +38,7 @@ jobs:
     if: needs.get-keywords.outputs.level != 'Undefined'
     strategy:
       matrix:
-        environment: ["${{needs.get-keywords.outputs.level}}"] # 키워드가 여러개면 여러개 다 실행
+        environment: ["${{needs.get-keywords.outputs.level}}"] # matrix를 지정하면 job 제목에   [job이름] (matrix value) 형식으로 나타는다.
     environment: ${{ matrix.environment }}
     runs-on: ubuntu-latest
     steps:

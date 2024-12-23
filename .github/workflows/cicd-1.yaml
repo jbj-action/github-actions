@@ -1,0 +1,113 @@
+name: cicd-1
+on:
+  pull_request:
+    types: [opened, synchronize, closed]
+    branches: [dev]
+    paths:
+    - 'my-app/**'
+
+
+jobs:
+  test:
+    if: github.event.action == 'opened' || github.event.action == 'synchronize'
+    runs-on: ubuntu-latest
+    steps:
+    - name: checkout the code
+      uses: actions/checkout@v4
+    - name: setup-node
+      uses: actions/setup-node@v3
+      with:
+        node-version:18
+    - name: Cache Node.js modules
+      uses: actions/cache@v3
+      with:
+        path: ~/.npm
+        key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+        restore-keys: |
+          ${{ runners.os}}-node-
+    - name: Install dependencies
+      run: |
+        cd my-app
+        npm ci
+    - name: npm build
+      run: |
+        cd my-app
+        npm run build
+  
+  image-build:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+    - name: checkout the code
+      uses: actions/checkout@v4
+    - name: Login to GitHub Container Registry
+      id: registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ vars.registry}}
+          username: ${{ secrets.username }}
+          password: ${{ secrets.password }}
+    - name: Build and push
+      uses: docker/build-push-action@v6
+      with:
+        context: .                # 빌드 컨텍스트 (현재 디렉토리)
+        file: ./Dockerfile        # Dockerfile 위치
+        push: true                # 빌드 후 푸시 여부
+        tags: |                   # 이미지 태그 목록
+          ${{ vars.registry }}/myapp:latest
+          ${{ vars.registry }}/myapp:${{ github.sha }}
+  
+  # deploy:
+  #   runs-on: ubuntu-latest
+  #   needs: [ image-build ]
+  #   permissions:
+  #     id-token: write
+  #     contents: read
+  #   steps:
+  #   - name: checkout the code
+  #     uses: actions/checkout@v4
+  #   - name: Configure AWS Credentials
+  #     id: credentials
+  #     uses: aws-actions/configure-aws-credentials@v4
+  #     with:
+  #       aws-region: ${{ vars.AWS_REGION }}
+  #       role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+  #   - name: setup kubectl
+  #     uses: azure/setup-kubectl@v3
+  #     with:
+  #       version: latest
+  #   - name: setup helm
+  #     uses: azure/setup-helm@v3
+  #     with:
+  #       version: v3.11.1
+  #   - name: access kubernetes
+  #     run: |
+  #       aws eks update-kubeconfig --name ${{ vars.CLUSTER_NAME }}
+  #   - name: deploy
+  #     id: status
+  #     run: |
+  #       helm upgrade --install my-app kubernetes/my-app --create-namespace --namespace my-app-${{ vars.SUFFIX }} \
+  #       --set image.tag=${{ github.sha }} \
+  #       --set image.repository=${{ secrets.REGISTRY }}/${{ vars.REPOSITORY }}
+  #   - name: notify
+  #     if: always() 
+  #     uses: slackapi/slack-github-action@v2.0.0
+  #     with:
+  #       webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
+  #       webhook-type: webhook-trigger
+  #       payload: |
+  #         {
+  #           "text": "message",
+  #           "blocks": [
+  #             {
+  #               "type": "section",
+  #               "text": {
+  #                 "type": "mrkdwn",
+  #                 "text": "Environment : dev, Deploy Result : ${{ steps.status.outcome }}, Repository : ${{ github.repository }}."
+  #               }
+  #             }
+  #           ]
+  #         }
