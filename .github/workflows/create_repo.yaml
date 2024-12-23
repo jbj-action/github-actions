@@ -43,7 +43,7 @@ jobs:
                   "color": "28a745",
                   "fields": [
                     {
-                      "title": "create repo result ${{ steps.create-repo.outcome }}",  # step2에서의 ID의 결과값을 받아서 사용
+                      "title": "create repo result ${{ steps.create-repo1.outcome }}",  # step2에서의 ID의 결과값을 받아서 사용
                       "short": true,
                       "value": "${{ inputs.prefix }}-${{ inputs.name }}"
                     }
