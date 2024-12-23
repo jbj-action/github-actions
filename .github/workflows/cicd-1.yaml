@@ -12,7 +12,7 @@ on:
 
 jobs:
   test:
-    if: github.event.action == 'opened' || github.event.action == 'synchronize'
+    #if: github.event.action == 'opened' || github.event.action == 'synchronize'
     runs-on: ubuntu-latest
     steps:
       - name: checkout the code
@@ -38,7 +38,8 @@ jobs:
           npm run build
 
   image-build:
-    if: github.event.pull_request.merged == true
+    needs: [test]
+    #if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     permissions:
       id-token: write
