@@ -47,10 +47,6 @@ jobs:
     steps:
       - name: checkout the code
         uses: actions/checkout@v4
-      - name: Setup insecure registry
-        run: |
-          echo '{ "insecure-registries": ["192.168.70.198:5000"] }' | sudo tee /etc/docker/daemon.json
-          sudo systemctl restart docker
       - name: Registry health check
         run: |
           # HTTP 응답 코드 확인
@@ -69,7 +65,6 @@ jobs:
           push: true # 빌드 후 푸시 여부
           tags: | # 이미지 태그 목록
             ${{ vars.registry }}/myapp:latest
-            ${{ vars.registry }}/myapp:${{ github.sha }}
 
   # deploy:
   #   runs-on: ubuntu-latest
