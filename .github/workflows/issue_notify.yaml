@@ -36,10 +36,14 @@ jobs:
   slack:
     needs: [get-keywords] # get-keywords가 끝나면 실행
     if: needs.get-keywords.outputs.level != 'Undefined' #
+    environment: ${{needs.get-keyword.outputs.level}}
     runs-on: ubuntu-latest
     steps:
+      - name: Check environment
+        run: |
+          echo "Running in environment: ${{ vars.ENVIRONMENT_NAME }}"
+          echo "Level from previous job: ${{ needs.get-keywords.outputs.level }}"
       - name: Send custom event details to a Slack workflow
-        environment: ${{needs.get-keyword.outputs.level}}
         uses: slackapi/slack-github-action@v2.0.0
         with:
           webhook: ${{ secrets.SLACK_WEBHOOK_URL }} #미리 지정한 환경에따라 전달할 slack url이 달라진다.
