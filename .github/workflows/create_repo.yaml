@@ -29,26 +29,26 @@ jobs:
         id: create-repo1 # 성공/실패 유무를 내보내기 위해 고유 ID를 부여
         run: |
           gh repo create jbj-action2/${{inputs.prefix}}-${{inputs.name}} --public --add-readme   # input값으로 repo 생성
-    - name: slack 
-      if: always()   # 위 2번째 step이 성공 또는 실패를 무조건 보내기
-      uses: slackapi/slack-github-action@v1.24.0
-      with:
-        payload: |
-          {
-            "attachments": [
-              {
-                "pretext": "create repo result",
-                "color": "28a745",
-                "fields": [
-                  {
-                    "title": "create repo result ${{ steps.create-repo.outcome }}",  # step2에서의 ID의 결과값을 받아서 사용
-                    "short": true,
-                    "value": "${{ inputs.prefix }}-${{ inputs.name }}"
-                  }
-                ]
-              }
-            ]
-          }
-      env:
-        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-        SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
+      - name: slack
+        if: always() # 위 2번째 step이 성공 또는 실패를 무조건 보내기
+        uses: slackapi/slack-github-action@v1.24.0
+        with:
+          payload: |
+            {
+              "attachments": [
+                {
+                  "pretext": "create repo result",
+                  "color": "28a745",
+                  "fields": [
+                    {
+                      "title": "create repo result ${{ steps.create-repo.outcome }}",  # step2에서의 ID의 결과값을 받아서 사용
+                      "short": true,
+                      "value": "${{ inputs.prefix }}-${{ inputs.name }}"
+                    }
+                  ]
+                }
+              ]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
