@@ -23,7 +23,7 @@ jobs:
           echo level=Undefined >> $GITHUB_OUTPUT                        # GITHUB_OUTPUT은 github에서 제공하는 원래 있는 환경변수 
           keywords=$(cat keyword-list.txt)                              # keyword-list.txt 파일의 내용을 읽어서 keywords 변수에 저장
           for keyword in $keywords; do                                  # keywords 목록을 순회하면서
-            if [["${{ github.event.issue.title}}" =~ $keyword]]; then # 이슈 제목에 현재 키워드가 포함되어 있는지 확인
+            if [["${{ github.event.issue.title}}" =~ "$keyword"]]; then # 이슈 제목에 현재 키워드가 포함되어 있는지 확인
                                                                         # 문자열 =~ 패턴 : 왼쪽의 문자열이 오른쪽의 패턴과 매치되는지 검사합니다.
               echo level=$keyword >> $GITHUB_OUTPUT                     # 키워드가 발견되면 해당 키워드를 level 출력값으로 설정
             fi
