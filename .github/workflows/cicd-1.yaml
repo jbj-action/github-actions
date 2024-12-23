@@ -1,5 +1,9 @@
 name: cicd-1
 on:
+  push:
+    branches: [dev]
+    paths:
+      - "my-app/**"
   pull_request:
     types: [opened, synchronize, closed]
     branches: [dev]
