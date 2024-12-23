@@ -15,7 +15,7 @@ function App() {
           target="_blank"
           rel="noopener noreferrer"
         >
-          Learn GithubAction after12345678
+          Learn GithubAction after123456789
         </a>
       </header>
     </div>
