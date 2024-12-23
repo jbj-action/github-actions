@@ -41,8 +41,7 @@ jobs:
     steps:
       - name: Check environment
         run: |
-          echo "Environment context:"
-          echo "${{ toJSON(environment) }}"
+          echo "Level from previous job: ${{ needs.get-keywords.outputs.level }}"
       - name: Send custom event details to a Slack workflow
         uses: slackapi/slack-github-action@v2.0.0
         with:
