@@ -28,7 +28,7 @@ jobs:
       - name: create-repo
         id: create-repo1 # 성공/실패 유무를 내보내기 위해 고유 ID를 부여
         run: |
-          gh repo create github-actions/${{input.prefix}}-${{input.name}} --public --add-readme   # input값으로 repo 생성
+          gh repo create github-actions/${{inputs.prefix}}-${{inputs.name}} --public --add-readme   # input값으로 repo 생성
       - name: slack
         if: always() # 위 2번째 step이 성공 또는 실패를 무조건 보내기
         uses: slackapi/slack-github-action@v2.0.0
