@@ -39,6 +39,10 @@ jobs:
     runs-on: ubuntu-latest
     environment: ${{needs.get-keyword.outputs.level}}
     steps:
+      - name: Check environment
+        run: |
+          echo "Environment context:"
+          echo "${{ toJSON(environment) }}"
       - name: Send custom event details to a Slack workflow
         uses: slackapi/slack-github-action@v2.0.0
         with:
