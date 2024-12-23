@@ -35,8 +35,11 @@ jobs:
 
   slack:
     needs: [get-keywords] # get-keywords가 끝나면 실행
-    if: needs.get-keywords.outputs.level != 'Undefined' #
-    environment: ${{needs.get-keywords.outputs.level}}
+    if: needs.get-keywords.outputs.level != 'Undefined'
+    strategy:
+      matrix:
+        environment: ["${{needs.get-keywords.outputs.level}}"] # 키워드가 여러개면 여러개 다 실행
+    environment: ${{ matrix.environment }}
     runs-on: ubuntu-latest
     steps:
       - name: Check environment
